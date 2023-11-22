@@ -1,2 +1,0 @@
-int a;
-long b
