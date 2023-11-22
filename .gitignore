@@ -34,4 +34,5 @@
 output/
 lib/
 Env/
+src/test/
 .vscode/
