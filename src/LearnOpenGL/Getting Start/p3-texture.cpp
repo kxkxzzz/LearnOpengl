@@ -8,15 +8,13 @@
 #include "stb_image.h"
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../shader/p3-texture/shader.vs";
-const char* fragmentShaderSrc = "../../shader/p3-texture/shader.fs";
-const char* textureSrc = "../../img/wall.jpg";
+const char* vertexShaderSrc = "../../../shader/p3-texture/shader.vs";
+const char* fragmentShaderSrc = "../../../shader/p3-texture/shader.fs";
+const char* textureSrc = "../../../img/wall.jpg";
 
 void bufferSizeCallBack(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
-
-
 
 void processinput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

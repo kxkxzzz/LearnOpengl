@@ -7,8 +7,8 @@
 
 constexpr int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 600;
 
-const char* vertexShaderSrc = "../../shader/p2-shader/shader.vs";
-const char* fragmentShaderSrc = "../../shader/p2-shader/shader.fs";
+const char* vertexShaderSrc = "../../../shader/p2-shader/shader.vs";
+const char* fragmentShaderSrc = "../../../shader/p2-shader/shader.fs";
 
 void bufferSizeCallBack(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);

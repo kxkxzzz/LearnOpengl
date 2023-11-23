@@ -11,10 +11,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../shader/p4-transform/shader.vs";
-const char* fragmentShaderSrc = "../../shader/p4-transform/shader.fs";
-const char* textureSrc = "../../img/container.jpg";
-const char* textureSrc2 = "../../img/awesomeface.png";
+const char* vertexShaderSrc = "../../../shader/p4-transform/shader.vs";
+const char* fragmentShaderSrc = "../../../shader/p4-transform/shader.fs";
+const char* textureSrc = "../../../img/container.jpg";
+const char* textureSrc2 = "../../../img/awesomeface.png";
 
 void bufferSizeCallBack(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);

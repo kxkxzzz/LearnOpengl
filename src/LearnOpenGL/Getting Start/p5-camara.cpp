@@ -11,10 +11,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../shader/p5-camara/shader.vs";
-const char* fragmentShaderSrc = "../../shader/p5-camara/shader.fs";
-const char* textureSrc = "../../img/container.jpg";
-const char* textureSrc2 = "../../img/awesomeface.png";
+const char* vertexShaderSrc = "../../../shader/p5-camara/shader.vs";
+const char* fragmentShaderSrc = "../../../shader/p5-camara/shader.fs";
+const char* textureSrc = "../../../img/container.jpg";
+const char* textureSrc2 = "../../../img/awesomeface.png";
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
