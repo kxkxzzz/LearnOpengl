@@ -249,11 +249,6 @@ int main() {
         shaderPro.use();
         glBindVertexArray(VAO);
 
-        // const float radius = 10.0f;
-        // float camX = sin(glfwGetTime()) * radius, camZ = cos(glfwGetTime()) * radius;
-        // glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
-        //                              glm::vec3(0.0, 1.0, 0.0));
-
         glm::mat4 view;
         view = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 

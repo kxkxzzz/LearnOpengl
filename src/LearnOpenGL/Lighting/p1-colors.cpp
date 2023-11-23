@@ -12,6 +12,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../shader/p6-camara/shader.vs";
-const char* fragmentShaderSrc = "../../shader/p5-camara/shader.fs";
-const char* textureSrc = "../../img/container.jpg";
+const char* vertexShaderSrc = "../../../shader/Lighting/p1/shader.vs";
+const char* fragmentShaderSrc = "../../../shader/Lighting/p1/shader.fs";
+const char* textureSrc = "../../../img/container.jpg";
