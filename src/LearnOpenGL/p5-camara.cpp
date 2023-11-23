@@ -206,6 +206,25 @@ int main() {
         shaderPro.use();
         glBindVertexArray(VAO);
 
+        // const float radius = 10.0f;
+        // float camX = sin(glfwGetTime()) * radius, camZ = cos(glfwGetTime()) * radius;
+        // glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
+        //                              glm::vec3(0.0, 1.0, 0.0));
+        float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        glm::mat4 view;
+        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
+                           glm::vec3(0.0, 1.0, 0.0));
+
+        glm::mat4 proj = glm::mat4(1.0f);
+        proj = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+
+        int viewLoc = glGetUniformLocation(shaderPro.ID, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        int projLoc = glGetUniformLocation(shaderPro.ID, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
         for (int i = 0; i < 10; i++) {
             // mvp
             glm::mat4 model = glm::mat4(1.0f);
@@ -213,17 +232,8 @@ int main() {
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
                                 glm::vec3(0.5f, 1.0f, 0.0f));
 
-            glm::mat4 view = glm::mat4(1.0f);
-            view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-            glm::mat4 proj = glm::mat4(1.0f);
-            proj =
-                glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-
-            glm::mat4 mvp = proj * view * model;
-
-            int mvpLoc = glGetUniformLocation(shaderPro.ID, "mvp");
-            glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+            int modelLoc = glGetUniformLocation(shaderPro.ID, "model");
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 

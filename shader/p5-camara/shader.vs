@@ -7,6 +7,6 @@ out vec2 TexCoord;
 uniform mat4 model, view, projection;
 
 void main(){
-    gl_Position = model * view * projection * vec4(aPos, 1.0f);
+    gl_Position = projection * view * model * vec4(aPos, 1.0f);
     TexCoord = aTexCoord;   
 }
