@@ -16,13 +16,60 @@ const char* fragmentShaderSrc = "../../shader/p5-camara/shader.fs";
 const char* textureSrc = "../../img/container.jpg";
 const char* textureSrc2 = "../../img/awesomeface.png";
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 void bufferSizeCallBack(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+float deltaTime = 0.0f;  // 当前帧与上一帧的时间差
+float lastFrame = 0.0f;  // 上一帧的时间
+
 void processinput(GLFWwindow* window) {
+
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    float cameraSpeed = 2.5f * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * glm::normalize(cameraFront);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * glm::normalize(cameraFront);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+}
+
+float lastX = SCR_WIDTH / 2, lastY = SCR_HEIGHT / 2;  // 鼠标位置
+bool firstMouse = true;
+float yaw = -90.0f, pitch = 0;
+float sensitivity = 0.08f;
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        firstMouse = false;
+        return;
+    }
+    float xoffset = xpos - lastX, yoffset = -(ypos - lastY);
+    lastX = xpos, lastY = ypos;
+
+    xoffset *= sensitivity, yoffset *= sensitivity;
+
+    pitch += yoffset;
+    yaw += xoffset;
+
+    pitch = std::min(pitch, 89.0f);
+    pitch = std::max(pitch, -89.0f);
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    front.y = sin(glm::radians(pitch));
+    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraFront = glm::normalize(front);
 }
 
 int main() {
@@ -42,6 +89,9 @@ int main() {
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, bufferSizeCallBack);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    // 隐藏光标
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to load glad!" << std::endl;
@@ -51,13 +101,6 @@ int main() {
     Shader shaderPro(vertexShaderSrc, fragmentShaderSrc);
     shaderPro.use();
 
-    // GLfloat vertices[] = {
-    //     // ---- 位置 ----   - 纹理坐标 -
-    //     0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  // 右上
-    //     0.5f,  -0.5f, 0.0f, 1.0f, 0.0f,  // 右下
-    //     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // 左下
-    //     -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // 左上
-    // };
     float vertices[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  //
         0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,  //
@@ -210,12 +253,9 @@ int main() {
         // float camX = sin(glfwGetTime()) * radius, camZ = cos(glfwGetTime()) * radius;
         // glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
         //                              glm::vec3(0.0, 1.0, 0.0));
-        float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
+
         glm::mat4 view;
-        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0),
-                           glm::vec3(0.0, 1.0, 0.0));
+        view = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 
         glm::mat4 proj = glm::mat4(1.0f);
         proj = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
@@ -229,8 +269,8 @@ int main() {
             // mvp
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
-                                glm::vec3(0.5f, 1.0f, 0.0f));
+            // model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
+            //                     glm::vec3(0.5f, 1.0f, 0.0f));
 
             int modelLoc = glGetUniformLocation(shaderPro.ID, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
