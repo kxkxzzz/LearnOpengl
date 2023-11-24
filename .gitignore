@@ -35,4 +35,3 @@ output/
 Env/
 src/test/
 !lib/*
-.vscode/settings.json
