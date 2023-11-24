@@ -34,5 +34,5 @@
 output/
 Env/
 src/test/
-!lib/
-!.vscode/settings.json
+!lib/*
+.vscode/settings.json
