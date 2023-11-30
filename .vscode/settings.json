@@ -103,7 +103,7 @@
   "C_Cpp.vcFormat.newLine.beforeOpenBrace.lambda": "sameLine",
   "C_Cpp.vcFormat.newLine.beforeOpenBrace.namespace": "sameLine",
   "C_Cpp.clang_format_style": "file:E:/VScodeCodes/CODES/.vscode/.clang-format",
-  "C_Cpp.clang_format_path": "E:\\VScodeCodes\\clang-format.exe",
+  "C_Cpp.clang_format_path": "E:\\VScodeCodes\\bin\\clang-format.exe",
   "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Chromium, IndentWidth: 4}",
   "cph.general.onceMaintainerMessage": false,
   //
