@@ -8,8 +8,8 @@
 #include "stb_image.h"
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../../shader/p3-texture/shader1.vs";
-const char* fragmentShaderSrc = "../../../shader/p3-texture/shader1.fs";
+const char* vertexShaderSrc = "../../../shader/GettingStart/p3-texture/shader1.vs";
+const char* fragmentShaderSrc = "../../../shader/GettingStart/p3-texture/shader1.fs";
 const char* textureSrc = "../../../img/container.jpg";
 const char* textureSrc2 = "../../../img/awesomeface.png";
 
