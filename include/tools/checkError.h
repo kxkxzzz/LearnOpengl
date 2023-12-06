@@ -1,3 +1,6 @@
+#ifndef CHECK_ERROR
+#define CHECK_ERROR
+
 #include <glad/glad.h>
 #include <iostream>
 
@@ -33,3 +36,4 @@ GLenum glCheckError_(const char* file, int line) {
     return errorCode;
 }
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
+#endif
