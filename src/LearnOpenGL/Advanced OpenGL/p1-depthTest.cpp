@@ -15,11 +15,9 @@
 #include "checkError.h"
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../../shader/Lighting/p6/shader.vs";
-const char* fragmentShaderSrc = "../../../shader/Lighting/p6/shader.fs";
-const char* lightVertexShaderSrc = "../../../shader/Lighting/p6/light.vs";
-const char* lightFragmentShaderSrc = "../../../shader/Lighting/p6/light.fs";
-const char* textureSrc = "../../../img/container.jpg";
+const char* VShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.vs";
+const char* FShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.fs";
+const char* textureSrc = "../../../img/metal.png";
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -60,6 +58,95 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
+
+    Shader shader(VShaderSrc, FShaderSrc);
+
+    float cubeVertices[] = {
+        // positions          // texture Coords
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  //
+        0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,  //
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,  //
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,  //
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f,  //
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  //
+
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,  //
+        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,  //
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  ///
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  //
+        -0.5f, 0.5f,  0.5f,  0.0f, 1.0f,  //
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,  //
+
+        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,  //
+        -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,  //
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  //
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  //
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,  //
+        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,  //
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  //
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,  //
+        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,  //
+        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,  //
+        0.5f,  -0.5f, 0.5f,  0.0f, 0.0f,  //
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  //
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  //
+        0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,  //
+        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,  //
+        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,  //
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,  //
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  //
+
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f,  //
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,  //
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  //
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  //
+        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f,  //
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f  //
+    };
+    float planeVertices[] = {
+        // positions          // texture Coords (note we set these higher than 1 (together with
+        // GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+        5.0f,  -0.5f, 5.0f,  2.0f, 0.0f,  //
+        -5.0f, -0.5f, 5.0f,  0.0f, 0.0f,  //
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,  //
+
+        5.0f,  -0.5f, 5.0f,  2.0f, 0.0f,  //
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,  //
+        5.0f,  -0.5f, -5.0f, 2.0f, 2.0f  //
+    };
+
+    GLuint cubeVAO, cubeVBO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+
+    GLuint planeVAO, planeVBO;
+    glGenVertexArrays(1, &planeVAO);
+    glGenBuffers(1, &planeVBO);
+
+    glBindVertexArray(planeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, 3, planeVertices, GL_STATIC_DRAW);
+    glBindVertexArray(0);
+
+    {
+        shader.use();
+        GLuint aPosLoc = glGetAttribLocation(shader.ID, "aPos");
+        GLuint aTexCoordsLoc = glGetAttribLocation(shader.ID, "aTexCoords");
+        glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(aTexCoordsLoc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                              (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(aPosLoc);
+        glEnableVertexAttribArray(aTexCoordsLoc);
+    }
+
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
