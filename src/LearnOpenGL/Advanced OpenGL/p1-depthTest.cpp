@@ -17,7 +17,8 @@
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
 const char* VShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.vs";
 const char* FShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.fs";
-const char* textureSrc = "../../../img/metal.png";
+const char* cubeTextureSrc = "../../../img/metal.png";
+const char* planeTextureSrc = "../../../img/marble.jpg";
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -34,6 +35,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int loadTexture(char const* path);
+void bindTexture(GLuint textureID, const int bias = 0);
 
 int main() {
 
@@ -124,7 +126,16 @@ int main() {
     glBindVertexArray(cubeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-
+    {
+        shader.use();
+        GLuint aPosLoc = glGetAttribLocation(shader.ID, "aPos");
+        GLuint aTexCoordsLoc = glGetAttribLocation(shader.ID, "aTexCoords");
+        glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribPointer(aTexCoordsLoc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                              (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(aPosLoc);
+        glEnableVertexAttribArray(aTexCoordsLoc);
+    }
     glBindVertexArray(0);
 
     GLuint planeVAO, planeVBO;
@@ -133,19 +144,24 @@ int main() {
 
     glBindVertexArray(planeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, 3, planeVertices, GL_STATIC_DRAW);
-    glBindVertexArray(0);
-
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
     {
         shader.use();
         GLuint aPosLoc = glGetAttribLocation(shader.ID, "aPos");
         GLuint aTexCoordsLoc = glGetAttribLocation(shader.ID, "aTexCoords");
-        glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-        glVertexAttribPointer(aTexCoordsLoc, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+        glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribPointer(aTexCoordsLoc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                               (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(aPosLoc);
         glEnableVertexAttribArray(aTexCoordsLoc);
     }
+    glBindVertexArray(0);
+
+    GLuint cubeTexture = loadTexture(cubeTextureSrc);
+    GLuint planeTexture = loadTexture(planeTextureSrc);
+
+    shader.use();
+    shader.setInt("texture0", 0);
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -159,9 +175,31 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render
+        glm::mat4 model(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
                                                 (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+
+        shader.use();
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
+
+        // cube
+        glBindVertexArray(cubeVAO);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        shader.setMat4("model", model);
+        bindTexture(cubeTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // glDepthFunc(GL_GREATER);
+
+        // plane
+        glBindVertexArray(planeVAO);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        shader.setMat4("model", model);
+        bindTexture(planeTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -242,4 +280,9 @@ unsigned int loadTexture(char const* path) {
     }
 
     return textureID;
+}
+
+void bindTexture(GLuint textureID, const int bias) {
+    glActiveTexture(GL_TEXTURE0 + bias);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 }

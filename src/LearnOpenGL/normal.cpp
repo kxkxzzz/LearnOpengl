@@ -15,11 +15,9 @@
 #include "checkError.h"
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* vertexShaderSrc = "../../../shader/Lighting/p6/shader.vs";
-const char* fragmentShaderSrc = "../../../shader/Lighting/p6/shader.fs";
-const char* lightVertexShaderSrc = "../../../shader/Lighting/p6/light.vs";
-const char* lightFragmentShaderSrc = "../../../shader/Lighting/p6/light.fs";
-const char* textureSrc = "../../../img/container.jpg";
+const char* VShaderSrc = "../../../shader/Lighting/p6/shader.vs";
+const char* FShaderSrc = "../../../shader/Lighting/p6/shader.fs";
+const char* TextureSrc = "../../../img/container.jpg";
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -59,6 +57,16 @@ int main() {
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    Shader shader(VShaderSrc, FShaderSrc);
+
+    // data
+
+    // VAO
+    GLuint VAO, VBO, EBO;
+
+    // glGenVertexArrays(1, &VAO);
+    // glGenBuffers(1, &VBO);
+
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -72,9 +80,15 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render
+        glm::mat4 model(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
                                                 (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+        shader.use();
+        shader.setMat4("model", model);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
+        // draw
 
         glfwSwapBuffers(window);
         glfwPollEvents();
