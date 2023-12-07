@@ -11,13 +11,22 @@ public:
     ShaderToyImporter(const std::string& VertSrc, const std::string& FragSrc);
     ~ShaderToyImporter();
     void Draw();
-    void init();
+    std::string getVShaderSrc() const {
+        return VShaderSrc;
+    }
+    std::string getFShaderSrc() const {
+        return FShaderSrc;
+    }
+    GLuint getShaderID() const {
+        return shader.ID;
+    }
 
 private:
     static const float vertices[];
     std::string VShaderSrc, FShaderSrc;
     GLuint VAO, VBO;
     Shader shader;
+    void init();
 };
 
 const float ShaderToyImporter::vertices[] = {
