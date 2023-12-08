@@ -146,7 +146,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "miku.reminderViewIntervalInMinutes": 45,
   "miku.title": "",

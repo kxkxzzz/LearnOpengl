@@ -15,8 +15,10 @@
 #include "checkError.h"
 
 constexpr int SCR_WIDTH = 800, SCR_HEIGHT = 600;
-const char* VShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.vs";
-const char* FShaderSrc = "../../../shader/AdvancedOpenGL/p1/shader.fs";
+const char* VShaderSrc = "../../../shader/AdvancedOpenGL/p2/shader.vert";
+const char* FShaderSrc = "../../../shader/AdvancedOpenGL/p2/shader.frag";
+const char* singleVertSrc = "../../../shader/AdvancedOpenGL/p2/single.vert";
+const char* singleFragSrc = "../../../shader/AdvancedOpenGL/p2/single.frag";
 const char* cubeTextureSrc = "../../../img/metal.png";
 const char* planeTextureSrc = "../../../img/marble.jpg";
 
@@ -40,7 +42,7 @@ void bindTexture(GLuint textureID, const int bias = 0);
 int main() {
 
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "color", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "stencil", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create glfw window" << std::endl;
         glfwTerminate();
@@ -59,9 +61,8 @@ int main() {
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glEnable(GL_DEPTH_TEST);
-
     Shader shader(VShaderSrc, FShaderSrc);
+    Shader singleShader(singleVertSrc, singleFragSrc);
 
     float cubeVertices[] = {
         // positions          // texture Coords
@@ -163,6 +164,11 @@ int main() {
     shader.use();
     shader.setInt("texture0", 0);
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
@@ -172,7 +178,7 @@ int main() {
         processInput(window);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         // render
         glm::mat4 model(1.0f);
@@ -184,22 +190,57 @@ int main() {
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
+        singleShader.use();
+        singleShader.setMat4("view", view);
+        singleShader.setMat4("projection", projection);
+
+        // plane
+        shader.use();
+        glStencilMask(0x00);
+        glBindVertexArray(planeVAO);
+        model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
+        bindTexture(planeTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
         // cube
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+
         glBindVertexArray(cubeVAO);
+        model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
         shader.setMat4("model", model);
         bindTexture(cubeTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // glDepthFunc(GL_GREATER);
-
-        // plane
-        glBindVertexArray(planeVAO);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         shader.setMat4("model", model);
-        bindTexture(planeTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // border
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        singleShader.use();
+        float scale = 1.05f;
+        // cubes
+        glBindVertexArray(cubeVAO);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        model = glm::scale(model, glm::vec3(scale, scale, scale));
+        singleShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(scale, scale, scale));
+        singleShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

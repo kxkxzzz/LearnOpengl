@@ -38,7 +38,7 @@ unsigned int loadTexture(char const* path);
 int main() {
 
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "color", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "normal", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create glfw window" << std::endl;
         glfwTerminate();
