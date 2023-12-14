@@ -231,6 +231,7 @@ int main() {
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+        // glCullFace(GL_FRONT);
         glBindVertexArray(cubeVAO);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
