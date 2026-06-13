@@ -6,8 +6,11 @@
 #include <iostream>
 #include <string>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#ifndef STB_IMAGE_IMPLEMENTATION
+#    define STB_IMAGE_IMPLEMENTATION
+#    include "stb_image.h"
+#endif
+
 #include "shaders.h"
 #include "camera.h"
 
@@ -95,6 +98,7 @@ void Skybox::draw(Shader& skyboxShader, const glm::mat4& projection, Camera& cam
     skyboxShader.setInt("skybox", 0);
     // remove translation from the view matrix
     glm::mat4 view_matrix = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+    // glm::mat4 view_matrix = camera.GetViewMatrix();
     skyboxShader.setMat4("view", view_matrix);
     skyboxShader.setMat4("projection", projection);
     // skybox cube
